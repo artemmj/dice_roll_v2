@@ -3,7 +3,7 @@
 #### Установка
 1. Скопировать репозиторий, перейти в папку
 ```
-git clone git@github.com:artemmj/dice_roll__v2.git
+git clone git@github.com:artemmj/dice_roll_v2.git
 
 cd dice_roll__v2/
 ```
