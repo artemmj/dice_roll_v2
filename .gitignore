@@ -1,0 +1,14 @@
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+volumes/
+
+.env
+.DS_Store
+go.work
+go.work.sum

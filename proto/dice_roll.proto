@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package dice_roll;
+
+option go_package = "proto.dice_roll";
+
+service DiceRollGameAPI {
+    rpc CreateSession (CreateSessionRequest) returns (CreateSessionResponse);
+    rpc Play (PlayRequest) returns (PlayResponse);
+    rpc VerifyRoll (VerifyRequest) returns (VerifyResponse);
+}
+
+message CreateSessionRequest {
+    string client_seed = 1;
+}
+
+message CreateSessionResponse {
+    string session_id = 1;
+    string server_seed_hash = 2;
+}
+
+message PlayRequest {
+    string session_id = 1;
+}
+
+message PlayResponse {
+    string createdAt = 1;
+    int32 serverRoll = 2;
+    int32 playerRoll = 3;
+    string winner = 4;
+    string roller = 5;
+    string server_seed = 6;    // Раскрытый после броска
+    string client_seed = 7;    // Использованный клиентский seed
+    int32 nonce = 8;           // Уникальный счетчик для броска
+    string generator_used = 9; // Имя генератора (напр., "crypto_sha256")
+}
+
+message VerifyRequest {
+    string server_seed = 1;
+    string client_seed = 2;
+    int32 nonce = 3;
+    string generator_name = 4;
+    int32 expected_roll = 5;
+}
+
+message VerifyResponse {
+    bool is_valid = 1;
+}
