@@ -65,7 +65,7 @@ go test ./tests -count=1 -v
    2. `session_id` (UUID)
    3. возвращает `server_seed_hash = SHA256(server_seed)`
 2. Клиент делает бросок. Сервер:
-   1. Делает инкрементит nonce
+   1. Инкрементит nonce
    2. Выбирает случайный генератор
    3. Вычисляет HMAC-SHA256(server_seed + client_seed + nonce)
    4. Генерирует броски через выбранный генератор
