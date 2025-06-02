@@ -1,0 +1,37 @@
+services:
+  app:
+    build: .
+    container_name: dice-roll
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      CONFIG_PATH: ./config/local.yaml
+      DB_HOST: db
+      DB_PORT: 5432
+    ports:
+      - "50051:50051"
+    command: sh -c "/app/migrator --migrations-path=./migrations && /app/dice_roll"
+    healthcheck:
+      test: ["CMD-SHELL", "grpc_health_probe -addr=:50051 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  db:
+    image: postgres:15-alpine
+    container_name: postgres-db
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+        - ./volumes/postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10

@@ -3,7 +3,6 @@ package storage
 import (
 	"context"
 	"errors"
-	"log/slog"
 	"sync"
 	"time"
 )
@@ -28,14 +27,12 @@ type SessionStorage interface {
 }
 
 type InMemoryStorage struct {
-	log      *slog.Logger
 	mu       sync.RWMutex
 	sessions map[string]*GameSession
 }
 
-func NewInMemoryStorage(log *slog.Logger) *InMemoryStorage {
+func NewInMemoryStorage() *InMemoryStorage {
 	return &InMemoryStorage{
-		log:      log,
 		sessions: make(map[string]*GameSession),
 	}
 }

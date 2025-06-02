@@ -1,18 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
-	"net"
 	"os"
+	"os/signal"
+	"syscall"
 
-	"dice_roll_v2/api"
-	"dice_roll_v2/config"
-	drgen "dice_roll_v2/gen/go"
-	"dice_roll_v2/storage"
-	"dice_roll_v2/storage/postgres"
-
-	"google.golang.org/grpc"
+	"dice_roll_v2/internal/app"
+	"dice_roll_v2/internal/config"
 )
 
 const (
@@ -25,25 +20,16 @@ func main() {
 	cfg := config.MustLoad()    // грузим конфиг
 	log := setupLogger(cfg.Env) // грузим логгер
 
-	pg_storage, _ := postgres.New(cfg.PostgresConnStr)
-	log.Debug("Инициализирован postgres.Storage...")
-
-	sessionStorage := storage.NewInMemoryStorage(log)
-	log.Debug("Инициализировано in-memory хранилище...")
-
-	service := api.NewService(sessionStorage, *pg_storage, log)
-	server := grpc.NewServer()
-	drgen.RegisterDiceRollGameAPIServer(server, service)
-	// Запуск сервера
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.GRPC.Port))
-	if err != nil {
-		log.Error("failed to listen: %v", slog.Any("err", err))
-	}
-
-	log.Debug(fmt.Sprintf("Стартовал gRPC сервер на порту %d", cfg.GRPC.Port))
-	if err := server.Serve(lis); err != nil {
-		log.Error("failed to serve: %v", slog.Any("err", err))
-	}
+	// Тут надо поменять строку подключения если будет работать не в докере
+	appication := app.New(log, cfg.PostgresConnStrForDocker, cfg.GRPC.Port)
+	go func() {
+		appication.MustRun()
+	}()
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+	<-stop
+	appication.Stop()
+	log.Info("Gracefully stopped")
 }
 
 // Функция выбирает логгер в зависимости от окружения

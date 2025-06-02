@@ -3,11 +3,12 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"dice_roll_v2/models"
 	"fmt"
 	"log/slog"
 
 	_ "github.com/lib/pq"
+
+	"dice_roll_v2/internal/models"
 )
 
 type Storage struct {
